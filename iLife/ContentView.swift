@@ -9,8 +9,20 @@ import SwiftUI
 
 struct Cell
 {
-    public var mCell: Bool = false
+    public var mbCell: Bool = false
     public var mNeighbours: UInt8 = 0
+    
+    mutating func mClear()
+    {
+        mbCell = false
+        mNeighbours = 0
+    }
+}
+
+struct Object
+{
+    public let mcName: String
+    public let mcData: String
 }
 
 struct Playfield
@@ -32,14 +44,35 @@ struct Playfield
     func mCell( row aRow: UInt8, col aCol: UInt8 ) -> Bool
     {
         assert( aRow < mcRows && aCol < mcCols )
-        return mField[ Int( aRow ) ][ Int( aCol ) ].mCell
+        return mField[ Int( aRow ) ][ Int( aCol ) ].mbCell
     }
     
     mutating func mSetCell( row aRow: UInt8, col aCol: UInt8, _ val: Bool )
     {
-        print( "row = \(aRow), col = \(aCol)" )
         assert( aRow < mcRows && aCol < mcCols )
-        mField[ Int( aRow ) ][ Int( aCol ) ].mCell = val
+        mField[ Int( aRow ) ][ Int( aCol ) ].mbCell = val
+    }
+    
+    mutating func mSetObject( row acRow: UInt8, col acCol: UInt8, _ acObject: Object )
+    {
+        assert( acRow < mcRows && acCol < mcCols )
+        var row = acRow
+        var col = acCol
+        for ch in acObject.mcData {
+            switch ch {
+            case "\n":
+                row = m_Under( row )
+                col = acCol
+                
+            case "o", "O":
+                mField[ Int( row ) ][ Int( col ) ].mbCell = true
+                col = m_RightOf( col )
+            
+            default:
+                mField[ Int( row ) ][ Int( col ) ].mbCell = false
+                col = m_RightOf( col )
+            }
+        }
     }
     
     private func m_LeftOf ( _ aCol: UInt8 ) -> UInt8 { ( aCol + mcCols - 1 ) % mcCols }
@@ -49,23 +82,59 @@ struct Playfield
     
     mutating func mAddGliders()
     {
-        mSetCell( row: 0, col: 1, true )
-        mSetCell( row: 1, col: 2, true )
-        mSetCell( row: 2, col: 0, true )
-        mSetCell( row: 2, col: 1, true )
-        mSetCell( row: 2, col: 2, true )
+//        mSetObject( row: 2, col: 2, Object( mcName: "Glider", mcData: """
+//.O
+//..O
+//OOO
+//""" ))
+//
+//        mSetObject( row: 10, col: 3, Object( mcName: "Spaceship", mcData: """
+//O..O
+//....O
+//O...O
+//.OOOO
+//""" ))
+//
+        mSetObject( row: 3, col: 3, Object( mcName: "Pulsar", mcData: """
+..OOO...OOO
+.
+O....O.O....O
+O....O.O....O
+O....O.O....O
+..OOO...OOO
+.
+..OOO...OOO
+O....O.O....O
+O....O.O....O
+O....O.O....O
+.
+..OOO...OOO
+"""))
+//        mSetCells( row: 1, col: 0, "..O" )
+//        mSetCells( row: 2, col: 0, "OOO" )
+//        mSetCell( row: 0, col: 1, true )
+//        mSetCell( row: 1, col: 2, true )
+//        mSetCell( row: 2, col: 0, true )
+//        mSetCell( row: 2, col: 1, true )
+//        mSetCell( row: 2, col: 2, true )
 
-        mSetCell( row: 2, col: 12, true )
-        mSetCell( row: 3, col: 11, true )
-        mSetCell( row: 4, col: 13, true )
-        mSetCell( row: 4, col: 12, true )
-        mSetCell( row: 4, col: 11, true )
+//        mSetCells( row: 2, col: 11, ".O" )
+//        mSetCells( row: 3, col: 11, "O" )
+//        mSetCells( row: 4, col: 11, "OOO" )
+//        mSetCell( row: 2, col: 12, true )
+//        mSetCell( row: 3, col: 11, true )
+//        mSetCell( row: 4, col: 13, true )
+//        mSetCell( row: 4, col: 12, true )
+//        mSetCell( row: 4, col: 11, true )
 
-        mSetCell( row: 14, col: 2, true )
-        mSetCell( row: 13, col: 3, true )
-        mSetCell( row: 12, col: 1, true )
-        mSetCell( row: 12, col: 2, true )
-        mSetCell( row: 12, col: 3, true )
+//        mSetCells( row: 12, col: 1, "OOO" )
+//        mSetCells( row: 13, col: 1, "..O" )
+//        mSetCells( row: 14, col: 1, ".O" )
+//        mSetCell( row: 14, col: 2, true )
+//        mSetCell( row: 13, col: 3, true )
+//        mSetCell( row: 12, col: 1, true )
+//        mSetCell( row: 12, col: 2, true )
+//        mSetCell( row: 12, col: 3, true )
 
 //        setCell( row: 26, col: 33, true )
 //        setCell( row: 27, col: 32, true )
@@ -104,6 +173,17 @@ struct Playfield
 //        setCell( row: 18, col: 57, true )
     }
     
+    mutating func mClear()
+    {
+        mCellCount = 0
+        mGeneration = 0
+        for row in 0 ..< mcRows {
+            for col in 0 ..< mcCols {
+                mField[ Int( row ) ][ Int( col ) ].mClear()
+            }
+        }
+    }
+    
     mutating func mUpdateNeighbours()
     {
         for row in 0 ..< mcRows {
@@ -132,15 +212,45 @@ struct Playfield
             for col in 0 ..< mcCols {
                 switch mField[ Int( row ) ][ Int( col ) ].mNeighbours {
                 case 2:     break
-                case 3:     mField[ Int( row ) ][ Int( col ) ].mCell = true
-                default:    mField[ Int( row ) ][ Int( col ) ].mCell = false
+                case 3:     mField[ Int( row ) ][ Int( col ) ].mbCell = true
+                default:    mField[ Int( row ) ][ Int( col ) ].mbCell = false
                 }
-                if mField[ Int( row ) ][ Int( col ) ].mCell {
+                if mField[ Int( row ) ][ Int( col ) ].mbCell {
                     mCellCount += 1
                 }
             }
         }
     }
+
+    public let mcGlider = Object( mcName: "Glider", mcData: """
+.O
+..O
+OOO
+""" )
+
+    public let mcSpaceship = Object( mcName: "Spaceship", mcData: """
+O..O
+....O
+O...O
+.OOOO
+""" )
+
+    public let mcPulsar = Object( mcName: "Pulsar", mcData: """
+..OOO...OOO
+.
+O....O.O....O
+O....O.O....O
+O....O.O....O
+..OOO...OOO
+.
+..OOO...OOO
+O....O.O....O
+O....O.O....O
+O....O.O....O
+.
+..OOO...OOO
+""" )
+
 }
 
 enum ePlayState
@@ -150,17 +260,17 @@ enum ePlayState
 }
 
 struct ButtonView: View {
-    var caption: String
-    var image = "hand.thumbsup.fill"
-    var action: () -> Void
+    var mCaption: String
+    var mImage = "hand.thumbsup.fill"
+    var mAction: () -> Void
     
     var body: some View {
-        Button( action: action ) {
+        Button( action: mAction ) {
             HStack {
-                Text( caption )
+                Text( mCaption )
                     .bold()
                     .font(.headline)
-                Image( systemName: image )
+                Image( systemName: mImage )
                     .font(.headline)
             }
             .padding()
@@ -175,30 +285,29 @@ struct ButtonView: View {
 }
 
 struct ContentView: View {
-    @State private var field = Playfield(rows: 27, cols: 18)
-    @State var stopTimer = false
-    @State var state = ePlayState.Edit
+    @State private var mField = Playfield(rows: 27, cols: 18)
+    @State var mState = ePlayState.Edit
     @State private var mo_GenerationTimer: Timer?
     
     var body: some View {
         VStack( spacing: 0 ) {
             HStack {
-                Text( "Cell Count = \(field.mCellCount)" )
+                Text( "Cell Count = \(mField.mCellCount)" )
                 Spacer()
-                Text( "Generation: \(field.mGeneration)" )
+                Text( "Generation: \(mField.mGeneration)" )
             }
             .foregroundColor(.white)
     
-            ForEach( 0 ..< field.mcRows, id: \.self ) { row in
+            ForEach( 0 ..< mField.mcRows, id: \.self ) { row in
                 HStack( spacing: 0 ) {
-                    ForEach( 0 ..< field.mcCols, id: \.self ) { col in
-                        let val = field.mCell( row: row, col: col )
+                    ForEach( 0 ..< mField.mcCols, id: \.self ) { col in
+                        let val = mField.mCell( row: row, col: col )
                         Image( systemName: val ? "circle.fill" : "circle" )
                             .foregroundColor( val ? Color.white : Color.gray )
                             .font(.caption)
                             .onTapGesture {
-                                if state == ePlayState.Edit {
-                                    field.mSetCell( row: row, col: col, !field.mCell( row: row, col: col ))
+                                if mState == ePlayState.Edit {
+                                    mField.mSetCell( row: row, col: col, !mField.mCell( row: row, col: col ))
                                 }
                             }
                     }
@@ -206,20 +315,64 @@ struct ContentView: View {
             }
             
             HStack {
-                ButtonView( caption: "Stop", image: "stop.fill" ) {
+                ButtonView( mCaption: "Stop", mImage: "stop.fill" ) {
                     stopGame()
                 }
-                .disabled( state == .Edit )
-                .opacity( state == .Edit ? 0.5 : 1.0 )
+                .disabled( mState == .Edit )
+                .opacity( mState == .Edit ? 0.5 : 1.0 )
 
-                ButtonView( caption: "Play", image: "forward.end.fill" ) {
+                ButtonView( mCaption: "Play", mImage: "forward.end.fill" ) {
                     startGame()
                 }
-                .disabled( state == .Live )
-                .opacity( state == .Live ? 0.5 : 1.0 )
+                .disabled( mState == .Live )
+                .opacity( mState == .Live ? 0.5 : 1.0 )
             }
             .padding()
             .foregroundColor(.white)
+            
+            HStack {
+                Button( action: {
+                    mField.mClear()
+                    mField.mSetObject( row: 3, col: 3, mField.mcGlider )
+                    
+                }) {
+                    Text( "Glider" )
+                        .bold()
+                        .font(.headline)
+                }
+                .padding(.horizontal)
+                .foregroundColor(.white)
+                .background( mState == .Edit ? Color.blue : Color.gray )
+                .disabled( mState != .Edit )
+
+                Button( action: {
+                    mField.mClear()
+                    mField.mSetObject( row: 5, col: 3, mField.mcSpaceship )
+                    
+                }) {
+                    Text( "Spaceship" )
+                        .bold()
+                        .font(.headline)
+                }
+                .padding(.horizontal)
+                .foregroundColor(.white)
+                .background( mState == .Edit ? Color.blue : Color.gray )
+                .disabled( mState != .Edit )
+
+                Button( action: {
+                    mField.mClear()
+                    mField.mSetObject( row: 4, col: 2, mField.mcPulsar )
+                    
+                }) {
+                    Text( "Pulsar" )
+                        .bold()
+                        .font(.headline)
+                }
+                .padding(.horizontal)
+                .foregroundColor(.white)
+                .background( mState == .Edit ? Color.blue : Color.gray )
+                .disabled( mState != .Edit )
+            }
         }
         .padding()
         .background(Color.black)
@@ -227,7 +380,7 @@ struct ContentView: View {
     
     func startGame()
     {
-        state = ePlayState.Live
+        mState = ePlayState.Live
         self.mo_GenerationTimer = Timer.scheduledTimer( withTimeInterval: 0.1, repeats: true ) { _ in
             next()
         }
@@ -235,18 +388,18 @@ struct ContentView: View {
     
     func stopGame()
     {
-        state = ePlayState.Edit
+        mState = ePlayState.Edit
         self.mo_GenerationTimer?.invalidate()
         self.mo_GenerationTimer = nil
     }
     
     func next()
     {
-        field.mUpdateNeighbours()
-        field.mUpdateCells()
-        field.mGeneration += 1
+        mField.mUpdateNeighbours()
+        mField.mUpdateCells()
+        mField.mGeneration += 1
         
-        if field.mCellCount == 0 {
+        if mField.mCellCount == 0 {
             stopGame()
         }
     }
