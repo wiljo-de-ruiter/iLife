@@ -14,6 +14,9 @@
 		9A16515C29708287005BD342 /* iLifeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A16515B29708287005BD342 /* iLifeTests.swift */; };
 		9A16516629708287005BD342 /* iLifeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A16516529708287005BD342 /* iLifeUITests.swift */; };
 		9A16516829708287005BD342 /* iLifeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A16516729708287005BD342 /* iLifeUITestsLaunchTests.swift */; };
+		9A16517529741644005BD342 /* Life.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A16517429741644005BD342 /* Life.swift */; };
+		9A165177297418CF005BD342 /* LifeObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A165176297418CF005BD342 /* LifeObjects.swift */; };
+		9A16517C297425BF005BD342 /* SideMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A16517B297425BF005BD342 /* SideMenuView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,9 @@
 		9A16516129708287005BD342 /* iLifeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLifeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A16516529708287005BD342 /* iLifeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iLifeUITests.swift; sourceTree = "<group>"; };
 		9A16516729708287005BD342 /* iLifeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iLifeUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		9A16517429741644005BD342 /* Life.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Life.swift; sourceTree = "<group>"; };
+		9A165176297418CF005BD342 /* LifeObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeObjects.swift; sourceTree = "<group>"; };
+		9A16517B297425BF005BD342 /* SideMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,9 +101,11 @@
 			isa = PBXGroup;
 			children = (
 				9A16514A29708283005BD342 /* iLifeApp.swift */,
-				9A16514C29708283005BD342 /* ContentView.swift */,
+				9A165178297424FE005BD342 /* LifeViews */,
 				9A16514E29708287005BD342 /* Assets.xcassets */,
 				9A16515029708287005BD342 /* Preview Content */,
+				9A16517429741644005BD342 /* Life.swift */,
+				9A165176297418CF005BD342 /* LifeObjects.swift */,
 			);
 			path = iLife;
 			sourceTree = "<group>";
@@ -125,6 +133,15 @@
 				9A16516729708287005BD342 /* iLifeUITestsLaunchTests.swift */,
 			);
 			path = iLifeUITests;
+			sourceTree = "<group>";
+		};
+		9A165178297424FE005BD342 /* LifeViews */ = {
+			isa = PBXGroup;
+			children = (
+				9A16514C29708283005BD342 /* ContentView.swift */,
+				9A16517B297425BF005BD342 /* SideMenuView.swift */,
+			);
+			path = LifeViews;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,7 +274,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A16517529741644005BD342 /* Life.swift in Sources */,
 				9A16514D29708283005BD342 /* ContentView.swift in Sources */,
+				9A16517C297425BF005BD342 /* SideMenuView.swift in Sources */,
+				9A165177297418CF005BD342 /* LifeObjects.swift in Sources */,
 				9A16514B29708283005BD342 /* iLifeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
