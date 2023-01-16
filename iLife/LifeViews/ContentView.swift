@@ -24,10 +24,11 @@ struct MenuButton: View {
         }) {
             Image( systemName: systemImage )
         }
-        .padding()
-        .background( Color.gray )
+        .frame( width: 60, height: 50 )
+        .background( enabled ? Color.blue : Color.gray )
+        .foregroundColor( enabled ? Color.white : Color.brown )
         .disabled( !enabled )
-        .opacity( enabled ? 1.0 : 0.5 )
+//        .opacity( enabled ? 1.0 : 0.5 )
     }
 }
 
@@ -71,6 +72,7 @@ struct ContentView: View {
                     Spacer()
                     Text( "Generation: \(mField.mGeneration)" )
                 }
+                .padding(.vertical)
                 .foregroundColor(.white)
                 
                 ForEach( 0 ..< mField.mcRows, id: \.self ) { row in
@@ -97,26 +99,27 @@ struct ContentView: View {
                 }
             
                 HStack {
+                    Spacer()
                     MenuButton( systemImage: "tray.fill", enabled: mState == .Edit ) {
                         withAnimation() {
                             self.isMenuOpen = true
                         }
                     }
-
+                    Spacer()
                     MenuButton( systemImage: "stop.fill", enabled: mState == .Edit ) {
                         mField.mClear()
                     }
-                    
+                    Spacer()
                     MenuButton( systemImage: "pause.fill", enabled: mState == .Live ) {
                         mStopGame()
                     }
-                    
+                    Spacer()
                     MenuButton( systemImage: "forward.end.fill", enabled: mState == .Edit && mField.mCellCount > 0 ) {
                         mStartGame()
                     }
+                    Spacer()
                 }
-                .padding()
-                .foregroundColor(.white)
+                .padding(.vertical)
             }
             .alert( isPresented: $showAlert ) {
                 Alert( title: Text( "The game of life" ),
