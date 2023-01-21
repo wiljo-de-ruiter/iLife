@@ -24,11 +24,11 @@ struct MenuButton: View {
         }) {
             Image( systemName: systemImage )
         }
-        .frame( width: 60, height: 50 )
+        .frame( width: 90, height: 50 )
         .background( enabled ? Color.blue : Color.gray )
-        .foregroundColor( enabled ? Color.white : Color.brown )
+        .foregroundColor( enabled ? Color.white : Color.black )
+        .cornerRadius(15)
         .disabled( !enabled )
-//        .opacity( enabled ? 1.0 : 0.5 )
     }
 }
 
@@ -57,15 +57,90 @@ struct ButtonView: View {
     }
 }
 
+struct MenuBarView: View {
+    @Binding public var mField: Playfield
+    @Binding public var mState: ePlayState
+    @Binding public var isMenuOpen: Bool
+    @State private var showAlert = false
+    @State private var mo_GenerationTimer: Timer?
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 2 ) {
+            Spacer()
+            MenuButton( systemImage: "tray.fill", enabled: mState == .Edit ) {
+                withAnimation() {
+                    self.isMenuOpen = true
+                }
+            }
+            Spacer()
+            MenuButton( systemImage: "stop.fill", enabled: mState == .Edit ) {
+                mField.mClear()
+            }
+            Spacer()
+            MenuButton( systemImage: "pause.fill", enabled: mState == .Live ) {
+                mStopGame()
+            }
+            Spacer()
+            MenuButton( systemImage: "forward.end.fill", enabled: mState == .Edit && mField.mCellCount > 0 ) {
+                mStartGame()
+            }
+            Spacer()
+        }
+        .padding(.vertical)
+        .alert( isPresented: $showAlert ) {
+            Alert( title: Text( "The game of life" ),
+                   message: Text( "The game has stopped!" ),
+                   dismissButton: .default( Text( "OK" )))
+        }
+    }
+    func mStartGame()
+    {
+        mState = ePlayState.Live
+        self.mo_GenerationTimer = Timer.scheduledTimer( withTimeInterval: 0.1, repeats: true ) { _ in
+            mNext()
+        }
+    }
+    
+    func mStopGame()
+    {
+        mState = ePlayState.Edit
+        self.mo_GenerationTimer?.invalidate()
+        self.mo_GenerationTimer = nil
+    }
+    
+    func mNext()
+    {
+        mField.mUpdateNeighbours()
+        if !mField.mbUpdateCells() {
+            mStopGame()
+            showAlert = true
+        } else if mField.mCellCount == 0 {
+            mStopGame()
+            showAlert = true
+        } else {
+            mField.mGeneration += 1
+            mField.mbFutureStop = false
+        }
+    }
+}
+
 struct ContentView: View {
     @State private var mField = Playfield( rows: 31, cols: 21 )
     @State private var mState = ePlayState.Edit
     @State private var isMenuOpen = false
-    @State private var showAlert = false
-    @State private var mo_GenerationTimer: Timer?
-    
+    @State private var screenWidth = UIScreen.main.bounds.size.width
+
     var body: some View {
         ZStack {
+            SideMenuView( onMenuClose: {
+                withAnimation() {
+                    self.isMenuOpen.toggle()
+                }
+            }, onObjectSelected: { acName in
+                mField.mStart = mField.mSetObject( at: mField.mStart, LifeObjects.objects[ acName ] )
+                mField.mStart.mSetNextRow( rows: mField.mcRows )
+            })
+
             VStack( spacing: 0 ) {
                 HStack {
                     Text( "Cell Count = \(mField.mCellCount)" )
@@ -97,44 +172,11 @@ struct ContentView: View {
                         }
                     }
                 }
-            
-                HStack {
-                    Spacer()
-                    MenuButton( systemImage: "tray.fill", enabled: mState == .Edit ) {
-                        withAnimation() {
-                            self.isMenuOpen = true
-                        }
-                    }
-                    Spacer()
-                    MenuButton( systemImage: "stop.fill", enabled: mState == .Edit ) {
-                        mField.mClear()
-                    }
-                    Spacer()
-                    MenuButton( systemImage: "pause.fill", enabled: mState == .Live ) {
-                        mStopGame()
-                    }
-                    Spacer()
-                    MenuButton( systemImage: "forward.end.fill", enabled: mState == .Edit && mField.mCellCount > 0 ) {
-                        mStartGame()
-                    }
-                    Spacer()
-                }
-                .padding(.vertical)
+
+                MenuBarView(mField: $mField, mState: $mState, isMenuOpen: $isMenuOpen )
             }
-            .alert( isPresented: $showAlert ) {
-                Alert( title: Text( "The game of life" ),
-                       message: Text( "The game has stopped!" ),
-                       dismissButton: .default( Text( "OK" )))
-            }
-            
-            SideMenuView( isMenuOpen: self.isMenuOpen, onMenuClose: {
-                withAnimation() {
-                    self.isMenuOpen.toggle()
-                }
-            }, onObjectSelected: { acName in
-                mField.mStart = mField.mSetObject( at: mField.mStart, LifeObjects.objects[ acName ] )
-                mField.mStart.mSetNextRow( rows: mField.mcRows )
-            })
+            .background(Color.black)
+            .offset( x: CGFloat( isMenuOpen ? screenWidth * 0.6 : 0 ))//-screenWidth ))
         }
         .onAppear {
             UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation") // Forcing the rotation to portrait
@@ -144,35 +186,6 @@ struct ContentView: View {
         }
     }
     
-    func mStartGame()
-    {
-        mState = ePlayState.Live
-        self.mo_GenerationTimer = Timer.scheduledTimer( withTimeInterval: 0.1, repeats: true ) { _ in
-            mNext()
-        }
-    }
-    
-    func mStopGame()
-    {
-        mState = ePlayState.Edit
-        self.mo_GenerationTimer?.invalidate()
-        self.mo_GenerationTimer = nil
-    }
-    
-    func mNext()
-    {
-        mField.mUpdateNeighbours()
-        if !mField.mbUpdateCells() {
-            mStopGame()
-            showAlert = true
-        } else if mField.mCellCount == 0 {
-            mStopGame()
-            showAlert = true
-        } else {
-            mField.mGeneration += 1
-            mField.mbFutureStop = false
-        }
-    }
 }
 
 struct ContentView_Previews: PreviewProvider {
