@@ -71,18 +71,7 @@ struct Playfield
     {
         return acRow < mcRows && acCol < mcCols
     }
-    
-//    subscript( coord acCoord: Coord ) -> Cell
-//    {
-//        get {
-//            assert( mb_IndexIsValid( acCoord ), "Index out of range" )
-//            return m_Field[ Int( acCoord.mRow ) ][ Int( acCoord.mCol ) ]
-//        }
-//        set {
-//            assert( mb_IndexIsValid( acCoord ), "Index out of range" )
-//            m_Field[ Int( acCoord.mRow ) ][ Int( acCoord.mCol ) ] = newValue
-//        }
-//    }
+
     subscript( row: UInt8, col: UInt8 ) -> Cell
     {
         get {
@@ -94,17 +83,6 @@ struct Playfield
             m_Field[ Int( row ) ][ Int( col ) ] = newValue
         }
     }
-//
-//    mutating func mSetCell( row aRow: UInt8, col aCol: UInt8, _ val: Bool )
-//    {
-//        assert( aRow < mcRows && aCol < mcCols )
-//        m_Field[ Int( aRow ) ][ Int( aCol ) ].mbCell = val
-//    }
-    
-//    private func m_LeftOf ( _ aCol: UInt8 ) -> UInt8 { ( aCol + mcCols - 1 ) % mcCols }
-//    private func m_RightOf( _ aCol: UInt8 ) -> UInt8 { ( aCol + 1 ) % mcCols }
-//    private func m_Above  ( _ aRow: UInt8 ) -> UInt8 { ( aRow + mcRows - 1 ) % mcRows }
-//    private func m_Under  ( _ aRow: UInt8 ) -> UInt8 { ( aRow + 1 ) % mcRows }
     
     mutating func mClear()
     {
