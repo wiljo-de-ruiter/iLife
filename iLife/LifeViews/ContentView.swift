@@ -138,7 +138,7 @@ struct ContentView: View {
                 }
             }, onObjectSelected: { acName in
                 mField.mStart = mField.mSetObject( at: mField.mStart, LifeObjects.objects[ acName ] )
-                mField.mStart.mSetNextRow( rows: mField.mcRows )
+                mField.mStart.mRow.mOffsetBy( 3, range: mField.mcRows )
             })
 
             VStack( spacing: 0 ) {

@@ -7,20 +7,31 @@
 
 import Foundation
 
+extension UInt8
+{
+    mutating func mToNext( range acRange: UInt8 )
+    {
+        mOffsetBy(  1, range: acRange )
+    }
+    mutating func mToPrev( range acRange: UInt8 )
+    {
+        mOffsetBy( -1, range: acRange )
+    }
+    mutating func mOffsetBy( _ acOffset: Int8, range acRange: UInt8 )
+    {
+        self = mOffset( acOffset, range: acRange )
+    }
+    func mOffset( _ acOffset: Int8, range acRange: UInt8 ) -> UInt8
+    {
+        let index: Int8 = ( Int8( self ) + acOffset ) % Int8( acRange )
+        return index >= 0 ? UInt8( index ) : UInt8( index + Int8( acRange ))
+    }
+}
+
 struct Coord
 {
     var mRow: UInt8 = 0
     var mCol: UInt8 = 0
-
-    public func mNextRow( rows acRows: UInt8 ) -> UInt8 { ( mRow + 1 ) % acRows }
-    public func mNextCol( cols acCols: UInt8 ) -> UInt8 { ( mCol + 1 ) % acCols }
-    public func mPrevRow( rows acRows: UInt8 ) -> UInt8 { ( mRow + acRows - 1 ) % acRows }
-    public func mPrevCol( cols acCols: UInt8 ) -> UInt8 { ( mCol + acCols - 1 ) % acCols }
-
-    mutating func mSetNextRow( rows acRows: UInt8 ) { mRow = mNextRow( rows: acRows ) }
-    mutating func mSetNextCol( cols acCols: UInt8 ) { mCol = mNextCol( cols: acCols ) }
-    mutating func mSetPrevRow( rows acRows: UInt8 ) { mRow = mPrevRow( rows: acRows ) }
-    mutating func mSetPrevCol( cols acCols: UInt8 ) { mCol = mPrevCol( cols: acCols ) }
 }
 
 struct Cell
@@ -102,13 +113,13 @@ struct Playfield
         var pos = Coord()
         for row in 0 ..< mcRows {
             pos.mRow = row
-            let above = pos.mPrevRow( rows: mcRows )
-            let below = pos.mNextRow( rows: mcRows )
+            let above = pos.mRow.mOffset( -1, range: mcRows )
+            let below = pos.mRow.mOffset(  1, range: mcRows )
         
             for col in 0 ..< mcCols {
                 pos.mCol = col
-                let left = pos.mPrevCol( cols: mcCols )
-                let right = pos.mNextCol( cols: mcCols )
+                let left = pos.mCol.mOffset( -1, range: mcCols )
+                let right = pos.mCol.mOffset( 1, range: mcCols )
                 var n: UInt8 = 0
                 
                 if self[ above, left  ].mbCell { n += 1 }
@@ -165,20 +176,20 @@ struct Playfield
         for ch in object {
             switch ch {
             case "\n":
-                coord.mSetNextRow( rows: mcRows )
+                coord.mRow.mToNext( range: mcRows )
                 coord.mCol = acCoord.mCol
                 
             case "o", "O":
                 self[ coord.mRow, coord.mCol ].mbCell = true
-                coord.mSetNextCol( cols: mcCols )
+                coord.mCol.mToNext( range: mcCols )
                 
             default:
                 self[ coord.mRow, coord.mCol ].mbCell = false
-                coord.mSetNextCol( cols: mcCols )
+                coord.mCol.mToNext( range: mcCols )
             }
         }
         mUpdateCellCount()
-        coord.mSetNextRow( rows: mcRows )
+        coord.mRow.mToNext( range: mcRows )
         coord.mCol = acCoord.mCol
         return coord
     }
