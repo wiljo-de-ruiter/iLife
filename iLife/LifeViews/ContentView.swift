@@ -32,6 +32,30 @@ struct MenuButton: View {
     }
 }
 
+struct RunButton: View {
+    @Binding public var mField: Playfield
+    let systemImage: String
+    let running: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button( action: {
+            action()
+        }) {
+            if running {
+                ProgressView()
+            } else {
+                Image( systemName: systemImage )
+            }
+        }
+        .frame( width: 90, height: 50 )
+        .background( running ? Color.gray : Color.blue )
+        .foregroundColor( running ? Color.black : Color.white )
+        .cornerRadius(15)
+        .disabled( mField.mCellCount == 0 )
+    }
+}
+
 struct ButtonView: View {
     var mCaption: String
     var mImage = "hand.thumbsup.fill"
@@ -81,7 +105,7 @@ struct MenuBarView: View {
                 mStopGame()
             }
             Spacer()
-            MenuButton( systemImage: "forward.end.fill", enabled: mState == .Edit && mField.mCellCount > 0 ) {
+            RunButton( mField: $mField, systemImage: "forward.end.fill", running: mState == .Live ) {
                 mStartGame()
             }
             Spacer()
